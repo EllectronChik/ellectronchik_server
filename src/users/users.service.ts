@@ -14,14 +14,16 @@ export class UsersService {
 
   async create(dto: CreateUserDto): Promise<UserDocument> {
     const userRole = await this.RolesService.findOne('user');
-    const user = await this.userModel.create({ ...dto, rating: 0, role: userRole._id });
+    const user = await this.userModel.create({
+      ...dto,
+      rating: 0,
+      role: userRole._id,
+    });
     if (userRole.users) {
       userRole.users.push(user);
     } else {
       userRole.users = [user];
     }
-    console.log(userRole.users);
-    
     await userRole.save();
     return user;
   }
