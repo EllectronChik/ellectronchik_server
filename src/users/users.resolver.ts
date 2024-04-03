@@ -5,13 +5,16 @@ import { UserObject, UsersObject } from 'src/objects/user.object';
 import { GraphQLError } from 'graphql';
 import { HttpStatus, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
 
 @Resolver((of) => UserObject)
 export class UsersResolver {
   constructor(private readonly UsersService: UsersService) {}
 
   @Query((returns) => [UsersObject])
-  @UseGuards(AuthGuard)
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
   async findAllUsers(): Promise<UserDocument[]> {
     return this.UsersService.findAll();
   }
