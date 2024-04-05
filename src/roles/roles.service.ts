@@ -19,6 +19,14 @@ export class RolesService {
     return this.roleModel.find();
   }
 
+  async findAllByRole(roleId: string): Promise<RoleDocument[]> {
+    const userRole = await this.roleModel.findById(roleId);
+    if (userRole.name !== 'SUPERUSER' && userRole.name !== 'ADMIN') {
+      return this.roleModel.find({ name: { $nin: ['SUPERUSER', 'ADMIN'] } });
+    }
+    return this.roleModel.find();
+  }
+
   async removeUserFromRole(userId: string, roleName: string): Promise<boolean> {
     const role = await this.roleModel.findById(roleName);
     role.users = role.users.filter((user) => user.toString() !== userId);
