@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesModule } from './roles/roles.module';
 import { DatabaseInitializerModule } from './database-initializer/database-initializer.module';
+import { RefreshModule } from './refresh/refresh.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { DatabaseInitializerModule } from './database-initializer/database-initi
       serveRoot: '/static',
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      context: ({ req, res }) => ({ req, res }),
       driver: ApolloDriver,
       playground: process.env.NODE_ENV !== 'production',
       autoSchemaFile: 'schema.gql',
@@ -37,6 +39,7 @@ import { DatabaseInitializerModule } from './database-initializer/database-initi
     UsersModule,
     RolesModule,
     DatabaseInitializerModule,
+    RefreshModule,
   ],
 })
 export class AppModule {}
