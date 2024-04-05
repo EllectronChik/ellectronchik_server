@@ -6,13 +6,22 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthResolver } from './auth.resolver';
 import { RolesService } from 'src/roles/roles.service';
 import { Role, RoleSchema } from 'src/roles/schema/role.schema';
+import { RefreshService } from 'src/refresh/refresh.service';
+import { Refresh, RefreshSchema } from 'src/refresh/schema/refresh.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
+    MongooseModule.forFeature([{ name: Refresh.name, schema: RefreshSchema }]),
   ],
-  providers: [AuthService, UsersService, AuthResolver, RolesService],
+  providers: [
+    AuthService,
+    UsersService,
+    AuthResolver,
+    RolesService,
+    RefreshService,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}
