@@ -1,10 +1,7 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { UserDocument } from './schema/user.schema';
+import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { UserObject, UsersObject } from 'src/objects/user.object';
-import { GraphQLError } from 'graphql';
-import { HttpStatus, UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { UserObject } from 'src/objects/user.object';
+import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 
@@ -12,24 +9,8 @@ import { Roles } from 'src/auth/roles.decorator';
 export class UsersResolver {
   constructor(private readonly UsersService: UsersService) {}
 
-  @Query((returns) => [UsersObject])
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
-  async findAllUsers(): Promise<UserDocument[]> {
-    return this.UsersService.findAll();
-  }
-
-  @Query((returns) => UserObject, { nullable: true })
-  async findOneUser(@Args('name') name: string): Promise<UserDocument> {
-    const user = await this.UsersService.findOne(name);
-    if (!user) {
-      throw new GraphQLError('User not found', {
-        extensions: { code: HttpStatus.NOT_FOUND },
-      });
-    }
-    return user.populate('role');
-  }
-
   @Mutation((returns) => Boolean)
   async removeUser(@Args('id') id: string): Promise<boolean> {
     return this.UsersService.remove(id);
