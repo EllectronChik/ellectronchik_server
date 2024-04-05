@@ -13,7 +13,7 @@ export class UsersService {
   ) {}
 
   async create(dto: CreateUserDto): Promise<UserDocument> {
-    const userRole = await this.RolesService.findOne('user');
+    const userRole = await this.RolesService.findOne('USER');
     const user = await this.userModel.create({
       ...dto,
       rating: 0,
