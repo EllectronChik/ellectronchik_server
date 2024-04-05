@@ -75,6 +75,10 @@ export class DatabaseInitializerService implements OnApplicationBootstrap {
       rating: 0,
     });
     await user.save();
+
+    superUserRole.users = [user];
+    await superUserRole.save();
+
     rl.close();
   }
 }
