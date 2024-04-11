@@ -5,11 +5,11 @@ export class CreateUserDto {
   @Field()
   @IsString()
   @MaxLength(30)
-  name: string;
+  readonly name: string;
 
   @Field()
   @IsString()
   @MaxLength(30)
   @IsStrongPassword()
-  password: string;
+  readonly password: string;
 }
