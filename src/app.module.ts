@@ -11,6 +11,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { RolesModule } from './roles/roles.module';
 import { DatabaseInitializerModule } from './database-initializer/database-initializer.module';
 import { RefreshModule } from './refresh/refresh.module';
+import { DiaryNotesModule } from './diary-notes/diary-notes.module';
+import { TagsModule } from './tags/tags.module';
+import { DiaryNotesMediaModule } from './diary-notes-media/diary-notes-media.module';
 
 @Module({
   imports: [
@@ -40,6 +43,10 @@ import { RefreshModule } from './refresh/refresh.module';
     RolesModule,
     DatabaseInitializerModule,
     RefreshModule,
+    DiaryNotesModule,
+    TagsModule,
+    DiaryNotesMediaModule,
   ],
+  providers: [],
 })
 export class AppModule {}
