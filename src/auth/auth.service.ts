@@ -16,7 +16,7 @@ export class AuthService {
 
   async signUp(
     userDto: CreateUserDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string; userId: string }> {
     const candidate = await this.usersService.findOne(userDto.name);
     if (candidate) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
@@ -29,12 +29,12 @@ export class AuthService {
     const { refreshToken } = await this.RefreshService.create(user._id);
     const { accessToken } = await this.generateToken(user);
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, userId: user._id };
   }
 
   async signIn(
     userDto: CreateUserDto,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string; userId: string }> {
     const user = await this.usersService.findOne(userDto.name);
 
     const isMatch = await bcrypt.compare(userDto.password, user.password);
@@ -42,7 +42,7 @@ export class AuthService {
     if (user && isMatch) {
       const { refreshToken } = await this.RefreshService.create(user._id);
       const { accessToken } = await this.generateToken(user);
-      return { accessToken, refreshToken };
+      return { accessToken, refreshToken, userId: user._id };
     }
 
     throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);

@@ -11,7 +11,7 @@ export class UsersResolver {
 
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
-  @Mutation((returns) => Boolean)
+  @Mutation((returns) => Boolean, { name: 'removeUser', description: 'remove user, only for admin' })
   async removeUser(@Args('id') id: string): Promise<boolean> {
     return this.UsersService.remove(id);
   }
