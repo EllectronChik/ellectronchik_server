@@ -1,6 +1,6 @@
 export class createDiaryNoteDto {
-  title: string;
-  content: string;
-  userId: string;
-  
+  readonly encryptedTitle: string;
+  readonly encryptedText: string;
+  readonly tags: string[];
+  readonly userId: string;
 }
