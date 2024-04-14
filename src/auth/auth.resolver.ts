@@ -8,17 +8,22 @@ import { Response } from 'express';
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
-  @Mutation((returns) => AuthPayloadObject)
+  @Mutation((returns) => AuthPayloadObject, {
+    name: 'register',
+    description: 'Register new user',
+  })
   async register(
     @Args('name') name: string,
     @Args('password') password: string,
     @Context('res') res: Response,
   ): Promise<{ accessToken: string }> {
-    const { accessToken, refreshToken } = await this.authService.signUp({
-      name,
-      password,
-    });
-    res.cookie('refreshToken', refreshToken, {
+    const { accessToken, refreshToken, userId } = await this.authService.signUp(
+      {
+        name,
+        password,
+      },
+    );
+    res.cookie('refreshToken', `${userId}__${refreshToken}`, {
       httpOnly: true,
       sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'none',
       secure: process.env.NODE_ENV === 'production',
@@ -28,17 +33,22 @@ export class AuthResolver {
     return { accessToken };
   }
 
-  @Mutation((returns) => AuthPayloadObject)
+  @Mutation((returns) => AuthPayloadObject, {
+    name: 'login',
+    description: 'Login user',
+  })
   async login(
     @Args('name') name: string,
     @Args('password') password: string,
     @Context('res') res: Response,
   ) {
-    const { accessToken, refreshToken } = await this.authService.signIn({
-      name,
-      password,
-    });
-    res.cookie('refreshToken', refreshToken, {
+    const { accessToken, refreshToken, userId } = await this.authService.signIn(
+      {
+        name,
+        password,
+      },
+    );
+    res.cookie('refreshToken', `${userId}__${refreshToken}`, {
       httpOnly: true,
       sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'none',
       secure: process.env.NODE_ENV === 'production',
