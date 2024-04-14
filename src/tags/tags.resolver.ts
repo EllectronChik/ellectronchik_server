@@ -14,13 +14,19 @@ export class TagsResolver {
 
   @UseGuards(RolesGuard)
   @Roles('ADMIN')
-  @Query(() => [TagObject], { name: 'findAllTags' })
+  @Query(() => [TagObject], {
+    name: 'findAllTags',
+    description: 'Find all tags, admin only',
+  })
   async findAll(): Promise<TagDocument[]> {
     return this.tagsService.findAll();
   }
 
   @UseGuards(AuthGuard)
-  @Query(() => TagObject, { name: 'findUserTagById' })
+  @Query(() => TagObject, {
+    name: 'findUserTagById',
+    description: 'Find tag associated with user by its id, auth required',
+  })
   async findOne(
     @Args('id') id: string,
     @Context('req') { user: { sub: userId } }: IReqUserContext,
@@ -29,7 +35,10 @@ export class TagsResolver {
   }
 
   @UseGuards(AuthGuard)
-  @Query(() => [TagObject], { name: 'findTagsByUser' })
+  @Query(() => [TagObject], {
+    name: 'findTagsByUser',
+    description: 'Find all tags associated with user by its id, auth required',
+  })
   async findTagsByUser(
     @Context('req') { user: { sub: userId } }: IReqUserContext,
   ): Promise<TagDocument[]> {
@@ -37,7 +46,11 @@ export class TagsResolver {
   }
 
   @UseGuards(AuthGuard)
-  @Mutation(() => TagObject, { name: 'createTag' })
+  @Mutation(() => TagObject, {
+    name: 'createTag',
+    description:
+      'Create new tag wich will be accessible only for creator, auth required',
+  })
   async createTag(
     @Args('name') name: string,
     @Args('color') color: string,
