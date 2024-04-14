@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { DiaryNotesResolver } from './diary-notes.resolver';
 import { DiaryNote, DiaryNoteSchema } from './schema/diaryNote.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { DiaryNotesService } from './diary-notes.service';
 
 @Module({
   imports: [
@@ -9,6 +10,6 @@ import { MongooseModule } from '@nestjs/mongoose';
       { name: DiaryNote.name, schema: DiaryNoteSchema },
     ]),
   ],
-  providers: [DiaryNotesResolver],
+  providers: [DiaryNotesResolver, DiaryNotesService],
 })
 export class DiaryNotesModule {}
