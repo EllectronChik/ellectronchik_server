@@ -32,6 +32,9 @@ import { DiaryNotesMediaModule } from './diary-notes-media/diary-notes-media.mod
       driver: ApolloDriver,
       playground: process.env.NODE_ENV !== 'production',
       autoSchemaFile: 'schema.gql',
+      subscriptions: {
+        'graphql-ws': true,
+      }
     }),
     JwtModule.register({
       global: true,
