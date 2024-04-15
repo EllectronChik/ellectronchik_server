@@ -10,14 +10,21 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { createDiaryNotesMediaDto } from './dto/createDiaryNotesMediaDto';
 import IFile from 'src/models/IFile';
-import { DiaryNote, DiaryNoteDocument } from 'src/diary-notes/schema/diaryNote.schema';
+import {
+  DiaryNote,
+  DiaryNoteDocument,
+} from 'src/diary-notes/schema/diaryNote.schema';
+import { formats as imageFormats } from './../formats/image-formats.json';
+import { formats as audioFormats } from './../formats/audio-formats.json';
+import { formats as videoFormats } from './../formats/video-formats.json';
 
 @Injectable()
 export class DiaryNotesMediaService {
   constructor(
     @InjectModel(DiaryNoteMedia.name)
     private diaryNoteMediaModel: Model<DiaryNoteMediaDocument>,
-    @InjectModel(DiaryNote.name) private diaryNoteModel: Model<DiaryNoteDocument>,
+    @InjectModel(DiaryNote.name)
+    private diaryNoteModel: Model<DiaryNoteDocument>,
   ) {}
 
   private extractExtension(filename: string) {
@@ -29,10 +36,27 @@ export class DiaryNotesMediaService {
     dto: createDiaryNotesMediaDto,
   ): Promise<DiaryNoteMediaDocument> {
     try {
-      const fileName =
-        uuidv4() + '.' + this.extractExtension(file.originalname);
+      const extension = this.extractExtension(file.originalname);
+      let folderName: string;
 
-      const filePath = path.resolve(__dirname, '..', '..', 'static');
+      if (imageFormats.includes(extension.toLowerCase())) {
+        folderName = 'images';
+      } else if (audioFormats.includes(extension.toLowerCase())) {
+        folderName = 'audio';
+      } else if (videoFormats.includes(extension.toLowerCase())) {
+        folderName = 'video';
+      } else {
+        folderName = 'unknown';
+      }
+      const fileName = uuidv4() + '.' + extension;
+
+      const filePath = path.resolve(
+        __dirname,
+        '..',
+        '..',
+        'static',
+        folderName,
+      );
 
       if (!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, { recursive: true });
