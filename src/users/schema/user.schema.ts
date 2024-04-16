@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { DiaryNote } from 'src/diary-notes/schema/diaryNote.schema';
 import { Role } from 'src/roles/schema/role.schema';
+import { Task } from 'src/tasks/schema/task.schema';
 
 export type UserDocument = User & mongoose.Document;
 
@@ -22,8 +23,8 @@ export class User {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'DiaryNote' }], default: [] })
   diaryNotes: DiaryNote[];
 
-  // @Prop()
-  // tasks: Task[];
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }], default: [] })
+  tasks: Task[];
 
   // @Prop()
   // goals: Goal[];
