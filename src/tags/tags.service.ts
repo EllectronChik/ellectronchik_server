@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Tag, TagDocument } from './schema/tag.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { createTagDto } from './dto/createTagDto';
+import { createTagInput } from './dto/create-tag.input';
 
 @Injectable()
 export class TagsService {
@@ -25,7 +25,7 @@ export class TagsService {
     return this.tagModel.find({ userId });
   }
 
-  async create(dto: createTagDto): Promise<TagDocument> {
-    return this.tagModel.create(dto);
+  async create(dto: createTagInput, userId: string): Promise<TagDocument> {
+    return this.tagModel.create({ ...dto, userId });
   }
 }
