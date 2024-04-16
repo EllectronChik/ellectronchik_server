@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { DiaryNotesMediaService } from './diary-notes-media.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { createDiaryNotesMediaDto } from './dto/createDiaryNotesMediaDto';
+import { createDiaryNoteMediaInput } from './dto/create-diary-note-media.input';
 import { HttpAuthGuard } from 'src/auth/httpAuth.guard';
 
 @Controller('files')
@@ -24,7 +24,7 @@ export class DiaryNotesMediaController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file,
-    @Body() dto: createDiaryNotesMediaDto,
+    @Body() dto: createDiaryNoteMediaInput,
   ) {
     if (!file || !dto.iv || !dto.noteId) {
       throw new HttpException('Bad request', HttpStatus.BAD_REQUEST); 
