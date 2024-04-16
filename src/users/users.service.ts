@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User, UserDocument } from './schema/user.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateUserDto } from './dto/CreateUserDto';
+import { CreateUserInput } from './dto/create-user.input';
 import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class UsersService {
     private RolesService: RolesService,
   ) {}
 
-  async create(dto: CreateUserDto): Promise<UserDocument> {
+  async create(dto: CreateUserInput): Promise<UserDocument> {
     const userRole = await this.RolesService.findOne('USER');
     const user = await this.userModel.create({
       ...dto,
