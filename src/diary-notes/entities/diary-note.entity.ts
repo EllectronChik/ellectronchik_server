@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class DiaryNoteObject {
+export class DiaryNote {
   @Field()
   _id: string;
 

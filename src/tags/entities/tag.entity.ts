@@ -2,7 +2,7 @@ import { Field, HideField, ObjectType } from "@nestjs/graphql";
 
 
 @ObjectType()
-export class TagObject {
+export class Tag {
 
   @Field()
   _id: string
