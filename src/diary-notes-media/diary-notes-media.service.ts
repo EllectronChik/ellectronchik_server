@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import * as fs from 'fs';
-import { createDiaryNotesMediaDto } from './dto/createDiaryNotesMediaDto';
+import { createDiaryNoteMediaInput } from './dto/create-diary-note-media.input';
 import IFile from 'src/models/IFile';
 import {
   DiaryNote,
@@ -33,7 +33,7 @@ export class DiaryNotesMediaService {
 
   async createFile(
     file: IFile,
-    dto: createDiaryNotesMediaDto,
+    dto: createDiaryNoteMediaInput,
   ): Promise<DiaryNoteMediaDocument> {
     try {
       const extension = this.extractExtension(file.originalname);
