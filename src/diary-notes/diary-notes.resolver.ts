@@ -7,10 +7,10 @@ import {
 } from '@nestjs/graphql';
 import { DiaryNotesService } from './diary-notes.service';
 import { DiaryNoteDocument } from './schema/diaryNote.schema';
-import { DiaryNoteObject } from 'src/objects/diaryNote.object';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IReqUserContext from 'src/models/IReqUserContext';
+import { DiaryNote } from './entities/diary-note.entity';
 
 @Resolver()
 export class DiaryNotesResolver {
@@ -18,7 +18,7 @@ export class DiaryNotesResolver {
   
 
   @UseGuards(AuthGuard)
-  @Query(() => [DiaryNoteObject], {
+  @Query(() => [DiaryNote], {
     name: 'findUserNotesPaginated',
     description:
       'Locate user notes with pagination, with a default limit set to 10 per page and a maximum limit of 100 per page, requiring authentication.',
@@ -50,7 +50,7 @@ export class DiaryNotesResolver {
   }
 
   @UseGuards(AuthGuard)
-  @Query(() => DiaryNoteObject, {
+  @Query(() => DiaryNote, {
     name: 'findNoteById',
     description: 'Find one note by id, requires authentication.',
   })
@@ -62,7 +62,7 @@ export class DiaryNotesResolver {
   }
 
   @UseGuards(AuthGuard)
-  @Mutation(() => DiaryNoteObject, {
+  @Mutation(() => DiaryNote, {
     name: 'createDiaryNote',
     description: 'Create a new note, requires authentication.',
   })
@@ -94,7 +94,7 @@ export class DiaryNotesResolver {
   }
 
   @UseGuards(AuthGuard)
-  @Mutation(() => DiaryNoteObject, {
+  @Mutation(() => DiaryNote, {
     name: 'updateText',
     description: 'Update note text, requires authentication.',
   })
@@ -108,7 +108,7 @@ export class DiaryNotesResolver {
   }
 
   @UseGuards(AuthGuard)
-  @Mutation(() => DiaryNoteObject, {
+  @Mutation(() => DiaryNote, {
     name: 'updateTitle',
     description: 'Update note title, requires authentication.',
   })
@@ -122,7 +122,7 @@ export class DiaryNotesResolver {
   }
 
   @UseGuards(AuthGuard)
-  @Mutation(() => DiaryNoteObject, {
+  @Mutation(() => DiaryNote, {
     name: 'updateTags',
     description: 'Update note tags, requires authentication.',
   })
@@ -137,7 +137,7 @@ export class DiaryNotesResolver {
   }
 
   @UseGuards(AuthGuard)
-  @Mutation(() => DiaryNoteObject, {
+  @Mutation(() => DiaryNote, {
     name: 'deleteDiaryNote',
     description: 'Delete a note, requires authentication.',
   })
