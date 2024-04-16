@@ -14,6 +14,8 @@ import { RefreshModule } from './refresh/refresh.module';
 import { DiaryNotesModule } from './diary-notes/diary-notes.module';
 import { TagsModule } from './tags/tags.module';
 import { DiaryNotesMediaModule } from './diary-notes-media/diary-notes-media.module';
+import { TasksModule } from './tasks/tasks.module';
+import { SubtaskModule } from './subtask/subtask.module';
 
 @Module({
   imports: [
@@ -49,6 +51,8 @@ import { DiaryNotesMediaModule } from './diary-notes-media/diary-notes-media.mod
     DiaryNotesModule,
     TagsModule,
     DiaryNotesMediaModule,
+    TasksModule,
+    SubtaskModule,
   ],
   providers: [],
 })
