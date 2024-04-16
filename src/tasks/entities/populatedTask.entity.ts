@@ -1,6 +1,6 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { TagObject } from 'src/objects/tag.object';
 import { Subtask } from 'src/subtask/entities/subtask.entity';
+import { Tag } from 'src/tags/entities/tag.entity';
 
 @ObjectType()
 export class PopulatedTask {
@@ -28,8 +28,8 @@ export class PopulatedTask {
   @Field(() => Int)
   points: number;
 
-  @Field(() => [TagObject])
-  tags: TagObject[];
+  @Field(() => [Tag])
+  tags: Tag[];
 
   @Field(() => [Subtask])
   subtasks: Subtask[];
