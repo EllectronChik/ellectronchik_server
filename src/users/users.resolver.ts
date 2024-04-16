@@ -1,11 +1,11 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { UserObject } from 'src/objects/user.object';
 import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
+import { User } from './entities/user.entity';
 
-@Resolver((of) => UserObject)
+@Resolver((of) => User)
 export class UsersResolver {
   constructor(private readonly UsersService: UsersService) {}
 
