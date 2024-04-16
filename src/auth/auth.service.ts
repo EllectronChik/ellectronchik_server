@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from '../users/dto/CreateUserDto';
+import { CreateUserInput } from '../users/dto/create-user.input';
 import { JwtService } from '@nestjs/jwt';
 import { UserDocument } from 'src/users/schema/user.schema';
 import { RefreshService } from '../refresh/refresh.service';
@@ -15,7 +15,7 @@ export class AuthService {
   ) {}
 
   async signUp(
-    userDto: CreateUserDto,
+    userDto: CreateUserInput,
   ): Promise<{ accessToken: string; refreshToken: string; userId: string }> {
     const candidate = await this.usersService.findOne(userDto.name);
     if (candidate) {
@@ -33,7 +33,7 @@ export class AuthService {
   }
 
   async signIn(
-    userDto: CreateUserDto,
+    userDto: CreateUserInput,
   ): Promise<{ accessToken: string; refreshToken: string; userId: string }> {
     const user = await this.usersService.findOne(userDto.name);
 
