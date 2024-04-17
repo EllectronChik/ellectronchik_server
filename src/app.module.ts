@@ -16,6 +16,8 @@ import { TagsModule } from './tags/tags.module';
 import { DiaryNotesMediaModule } from './diary-notes-media/diary-notes-media.module';
 import { TasksModule } from './tasks/tasks.module';
 import { SubtaskModule } from './subtask/subtask.module';
+import { GoalsModule } from './goals/goals.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -43,6 +45,7 @@ import { SubtaskModule } from './subtask/subtask.module';
       secret: process.env.PRIVATE_KEY,
       signOptions: { expiresIn: '15m' },
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     RolesModule,
@@ -53,6 +56,7 @@ import { SubtaskModule } from './subtask/subtask.module';
     DiaryNotesMediaModule,
     TasksModule,
     SubtaskModule,
+    GoalsModule,
   ],
   providers: [],
 })
