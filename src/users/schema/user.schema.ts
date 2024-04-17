@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { DiaryNote } from 'src/diary-notes/schema/diaryNote.schema';
+import { DiaryNote, DiaryNoteDocument } from 'src/diary-notes/schema/diaryNote.schema';
+import { Goal, GoalDocument } from 'src/goals/schema/goal.schema';
 import { Role } from 'src/roles/schema/role.schema';
-import { Task } from 'src/tasks/schema/task.schema';
+import { Task, TaskDocument } from 'src/tasks/schema/task.schema';
 
 export type UserDocument = User & mongoose.Document;
 
@@ -17,17 +18,30 @@ export class User {
   @Prop({ required: true })
   rating: number;
 
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Role' })
+  @Prop({
+    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Role.name,
+  })
   role: Role;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'DiaryNote' }], default: [] })
-  diaryNotes: DiaryNote[];
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: DiaryNote.name }],
+    default: [],
+  })
+  diaryNotes: DiaryNoteDocument[];
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }], default: [] })
-  tasks: Task[];
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Task.name }],
+    default: [],
+  })
+  tasks: TaskDocument[];
 
-  // @Prop()
-  // goals: Goal[];
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: Goal.name }],
+    default: [],
+  })
+  goals: GoalDocument[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
