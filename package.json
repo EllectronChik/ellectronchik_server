@@ -24,6 +24,7 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mongoose": "^10.0.4",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/schedule": "^4.0.2",
     "@nestjs/serve-static": "^4.0.2",
     "@types/bcrypt": "^5.0.2",
     "@types/uuid": "^9.0.8",

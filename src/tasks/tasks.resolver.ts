@@ -6,7 +6,7 @@ import { UpdateTaskInput } from './dto/update-task.input';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IReqUserContext from 'src/models/IReqUserContext';
-import { PopulatedTask } from './entities/populatedTask.entity';
+import { PopulatedTask } from './entities/populated-task.entity';
 
 @Resolver(() => Task)
 export class TasksResolver {
