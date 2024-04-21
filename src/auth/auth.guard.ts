@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { GraphQLError } from 'graphql';
@@ -9,16 +14,12 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const { req } = GqlExecutionContext.create(context).getContext();
-    if (req.headers.authorization?.split(' ')[0] !== 'Bearer') {
-      throw new GraphQLError('Invalid token', {
-        extensions: { code: HttpStatus.UNAUTHORIZED },
-      })
-    }
-    const token = req.headers.authorization?.split(' ')[1];
+    const token = req.headers.cookie.split('x-access-token=')[1].split(';')[0];
+
     if (!token) {
       throw new GraphQLError('Invalid token', {
         extensions: { code: HttpStatus.UNAUTHORIZED },
-      })
+      });
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
@@ -30,7 +31,7 @@ export class AuthGuard implements CanActivate {
     } catch (e) {
       throw new GraphQLError('Invalid token', {
         extensions: { code: HttpStatus.UNAUTHORIZED },
-      })
+      });
     }
   }
 }
