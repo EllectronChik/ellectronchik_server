@@ -36,6 +36,5 @@ lerna-debug.log*
 
 # Env
 *.env
-package-lock.json
 schema.gql
 static
