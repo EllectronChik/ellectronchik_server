@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { Context, Resolver, Query } from '@nestjs/graphql';
 import { GraphQLError } from 'graphql';
 import { RefreshService } from './refresh.service';
 import { Response } from 'express';
@@ -8,7 +8,7 @@ import { Response } from 'express';
 export class RefreshResolver {
   constructor(private readonly refreshService: RefreshService) {}
 
-  @Mutation(() => String, {
+  @Query(() => String, {
     name: 'revalidateToken',
     description:
       'Revalidate token using refresh token, return access token and new refresh token',
