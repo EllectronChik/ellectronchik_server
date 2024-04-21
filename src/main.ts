@@ -12,6 +12,14 @@ async function bootstrap() {
           process.env.NODE_ENV === 'production' ? undefined : false,
       }),
     );
+    
+    if (process.env.NODE_ENV === 'development' ){
+      console.log('In development mode');
+      app.enableCors({
+        origin: 'http://localhost:3000',
+        credentials: true,
+      });
+    }
     await app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
   } catch (error) {
     console.error(error);
