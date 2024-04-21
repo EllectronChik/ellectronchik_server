@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
+import { ValidationPipe } from '@nestjs/common';
+import { GraphQLError } from 'graphql';
 
 async function bootstrap() {
   try {
@@ -12,14 +14,29 @@ async function bootstrap() {
           process.env.NODE_ENV === 'production' ? undefined : false,
       }),
     );
-    
-    if (process.env.NODE_ENV === 'development' ){
+
+    if (process.env.NODE_ENV === 'development') {
       console.log('In development mode');
       app.enableCors({
         origin: 'http://localhost:3000',
         credentials: true,
       });
     }
+    app.useGlobalPipes(
+      new ValidationPipe({
+        exceptionFactory: (errors) => {
+          const messages = errors.map((error) => {
+            return Object.values(error.constraints);
+          });
+          const message = JSON.stringify(messages);
+          return new GraphQLError(message, {
+            extensions: {
+              code: 'BAD_REQUEST',
+            },
+          });
+        },
+      }),
+    );
     await app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
   } catch (error) {
     console.error(error);
