@@ -1,10 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserInput } from '../users/dto/create-user.input';
 import { JwtService } from '@nestjs/jwt';
 import { UserDocument } from 'src/users/schema/user.schema';
 import { RefreshService } from '../refresh/refresh.service';
+import { GraphQLError } from 'graphql';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,9 @@ export class AuthService {
   ): Promise<{ accessToken: string; refreshToken: string; userId: string }> {
     const candidate = await this.usersService.findOne(userDto.name);
     if (candidate) {
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+      throw new GraphQLError('User already exists', {
+        extensions: { code: 'BAD_USER_INPUT' },
+      });
     }
     const passHash = await bcrypt.hash(userDto.password, 12);
     const user = await this.usersService.create({
@@ -45,7 +48,9 @@ export class AuthService {
       return { accessToken, refreshToken, userId: user._id };
     }
 
-    throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
+    throw new GraphQLError('Invalid credentials', {
+      extensions: { code: 'BAD_USER_INPUT' },
+    });
   }
 
   private async generateToken(
