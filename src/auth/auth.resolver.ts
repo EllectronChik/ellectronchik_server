@@ -2,50 +2,60 @@ import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { User } from 'src/users/schema/user.schema';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { AuthPayload } from './auth-payload.entity';
 import { CreateUserInput } from 'src/users/dto/create-user.input';
+import { LoginUserInput } from 'src/users/dto/login-user.input';
 
-@Resolver((of) => User)
+@Resolver(() => User)
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
-  @Mutation(() => AuthPayload, {
+  @Mutation(() => Boolean, {
     name: 'register',
     description: 'Register new user',
   })
   async register(
     @Args('createUserInput') createUserInput: CreateUserInput,
     @Context('res') res: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<boolean> {
     const { accessToken, refreshToken, userId } =
       await this.authService.signUp(createUserInput);
-    res.cookie('refreshToken', `${userId}__${refreshToken}`, {
+    res.cookie('refresh-token', `${userId}__${refreshToken}`, {
       httpOnly: true,
       sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
-
-    return { accessToken };
+    res.cookie('x-access-token', accessToken, {
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 15,
+    });
+    return true;
   }
 
-  @Mutation(() => AuthPayload, {
+  @Mutation(() => Boolean, {
     name: 'login',
     description: 'Login user',
   })
   async login(
-    @Args('loginUserInput') loginUserInput: CreateUserInput,
+    @Args('loginUserInput') loginUserInput: LoginUserInput,
     @Context('res') res: Response,
-  ) {
-    const { accessToken, refreshToken, userId } = await this.authService.signIn(
-      loginUserInput,
-    );
-    res.cookie('refreshToken', `${userId}__${refreshToken}`, {
+  ): Promise<boolean> {
+    const { accessToken, refreshToken, userId } =
+      await this.authService.signIn(loginUserInput);
+    res.cookie('refresh-token', `${userId}__${refreshToken}`, {
       httpOnly: true,
       sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
-    return { accessToken, refreshToken };
+    res.cookie('x-access-token', accessToken, {
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 15,
+    });
+    return true;
   }
 }
