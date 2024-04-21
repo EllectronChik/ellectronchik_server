@@ -9,7 +9,7 @@ import { CreateUserInput } from 'src/users/dto/create-user.input';
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
-  @Mutation((returns) => AuthPayload, {
+  @Mutation(() => AuthPayload, {
     name: 'register',
     description: 'Register new user',
   })
@@ -21,7 +21,7 @@ export class AuthResolver {
       await this.authService.signUp(createUserInput);
     res.cookie('refreshToken', `${userId}__${refreshToken}`, {
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'none',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
@@ -29,7 +29,7 @@ export class AuthResolver {
     return { accessToken };
   }
 
-  @Mutation((returns) => AuthPayload, {
+  @Mutation(() => AuthPayload, {
     name: 'login',
     description: 'Login user',
   })
@@ -42,7 +42,7 @@ export class AuthResolver {
     );
     res.cookie('refreshToken', `${userId}__${refreshToken}`, {
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'none',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
