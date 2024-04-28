@@ -14,7 +14,14 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const { req } = GqlExecutionContext.create(context).getContext();
-    const token = req.headers.cookie.split('x-access-token=')[1].split(';')[0];
+    let token;
+    try {
+      token = req.headers.cookie.split('x-access-token=')[1].split(';')[0];
+    } catch (e) {
+      throw new GraphQLError('Invalid token', {
+        extensions: { code: HttpStatus.UNAUTHORIZED },
+      })
+    }
 
     if (!token) {
       throw new GraphQLError('Invalid token', {
