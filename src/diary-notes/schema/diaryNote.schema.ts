@@ -27,6 +27,9 @@ export class DiaryNote {
     default: [],
   })
   tags: Tag[];
+
+  @Prop({ required: true })
+  iv: string;
   
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'DiaryNoteMedia' }],

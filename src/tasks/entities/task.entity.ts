@@ -29,6 +29,9 @@ export class Task {
   @Field(() => [String])
   tags: string[];
 
+  @Field(() => String)
+  iv: string;
+
   @Field(() => [String])
   subtasks: string[];
 }

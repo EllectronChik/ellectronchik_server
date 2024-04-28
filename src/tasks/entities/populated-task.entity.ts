@@ -27,9 +27,12 @@ export class PopulatedTask {
 
   @Field(() => Int)
   points: number;
-
+  
   @Field(() => [Tag])
   tags: Tag[];
+
+  @Field(() => String)
+  iv: string;
 
   @Field(() => [Subtask])
   subtasks: Subtask[];

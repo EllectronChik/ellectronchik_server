@@ -19,4 +19,7 @@ export class CreateTaskInput {
 
   @Field(() => [String], { nullable: true })
   tags: string[];
+
+  @Field(() => String)
+  iv: string;
 }

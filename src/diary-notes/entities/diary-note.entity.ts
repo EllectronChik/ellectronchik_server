@@ -23,6 +23,9 @@ export class DiaryNote {
   @Field(() => [String], { nullable: true })
   tags: string[];
 
+  @Field(() => String)
+  iv: string;
+
   @Field()
   userId: string;
 }

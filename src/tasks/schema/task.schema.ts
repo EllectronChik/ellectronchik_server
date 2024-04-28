@@ -1,8 +1,7 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose from "mongoose";
-import { SubtaskDocument } from "src/subtask/schema/subtask.schema";
-import { Tag } from "src/tags/schema/tag.schema";
-
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
+import { SubtaskDocument } from 'src/subtask/schema/subtask.schema';
+import { Tag } from 'src/tags/schema/tag.schema';
 
 export type TaskDocument = Task & mongoose.Document;
 
@@ -37,6 +36,9 @@ export class Task {
   tags: Tag[];
 
   @Prop({ required: true })
+  iv: string;
+
+  @Prop({ required: true })
   userId: string;
 
   @Prop({
@@ -47,4 +49,4 @@ export class Task {
   subtasks: SubtaskDocument[];
 }
 
-export const TaskSchema = SchemaFactory.createForClass(Task)
+export const TaskSchema = SchemaFactory.createForClass(Task);
