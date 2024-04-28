@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DiaryNote, DiaryNoteDocument } from './schema/diaryNote.schema';
 import { Model } from 'mongoose';
-import { createDiaryNoteDto } from './dto/createDiaryNoteDto';
+import { CreateNoteInput } from './dto/create-note.input';
+import { UpdateTaskInput } from '../tasks/dto/update-task.input';
 
 @Injectable()
 export class DiaryNotesService {
@@ -26,7 +27,7 @@ export class DiaryNotesService {
     return await this.diaryNoteModel.findOne({ _id: id, userId: userId });
   }
 
-  async create(dto: createDiaryNoteDto): Promise<DiaryNoteDocument> {
+  async create(dto: CreateNoteInput): Promise<DiaryNoteDocument> {
     const creationDateTime = new Date();
     return await this.diaryNoteModel.create({
       ...dto,
@@ -36,55 +37,13 @@ export class DiaryNotesService {
     });
   }
 
-  async updateText(
-    id: string,
-    encryptedText: string,
-    userId: string,
-  ): Promise<DiaryNoteDocument> {
-    const updateDateTime = new Date();
-    const updatedNote = await this.diaryNoteModel.findOneAndUpdate(
-      { _id: id, userId: userId },
-      {
-        encryptedText: encryptedText,
-        updatedAt: updateDateTime,
-      },
+  async update(id: string, userId: string, updateTaskInput: UpdateTaskInput) {
+    const task = await this.diaryNoteModel.findOneAndUpdate(
+      { _id: id, userId },
+      updateTaskInput,
       { new: true },
     );
-    return updatedNote;
-  }
-
-  async updateTitle(
-    id: string,
-    encryptedTitle: string,
-    userId: string,
-  ): Promise<DiaryNoteDocument> {
-    const updateDateTime = new Date();
-    const updatedNote = await this.diaryNoteModel.findOneAndUpdate(
-      { _id: id, userId: userId },
-      {
-        encryptedTitle: encryptedTitle,
-        updatedAt: updateDateTime,
-      },
-      { new: true },
-    );
-    return updatedNote;
-  }
-
-  async updateTags(
-    id: string,
-    tags: string[],
-    userId: string,
-  ): Promise<DiaryNoteDocument> {
-    const updateDateTime = new Date();
-    const updatedNote = await this.diaryNoteModel.findOneAndUpdate(
-      { _id: id, userId: userId },
-      {
-        tags: tags,
-        updatedAt: updateDateTime,
-      },
-      { new: true },
-    );
-    return updatedNote;
+    return task;
   }
 
   async delete(id: string, userId: string): Promise<DiaryNoteDocument> {
