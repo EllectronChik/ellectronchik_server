@@ -1,21 +1,16 @@
-import {
-  Args,
-  Context,
-  Mutation,
-  Query,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { DiaryNotesService } from './diary-notes.service';
 import { DiaryNoteDocument } from './schema/diaryNote.schema';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IReqUserContext from 'src/models/IReqUserContext';
 import { DiaryNote } from './entities/diary-note.entity';
+import { CreateNoteInput } from './dto/create-note.input';
+import { UpdateNoteInput } from './dto/update-note.input';
 
 @Resolver()
 export class DiaryNotesResolver {
   constructor(private readonly diaryNotesService: DiaryNotesService) {}
-  
 
   @UseGuards(AuthGuard)
   @Query(() => [DiaryNote], {
@@ -67,16 +62,11 @@ export class DiaryNotesResolver {
     description: 'Create a new note, requires authentication.',
   })
   async createDiaryNote(
-    @Args('encryptedTitle') encryptedTitle: string,
-    @Args('encryptedText') encryptedText: string,
-    @Args('tags', { type: () => [String], defaultValue: [], nullable: true })
-    tags: string[],
+    @Args('createNoteInput') createNoteInput: CreateNoteInput,
     @Context('req') { user: { sub: userId } }: IReqUserContext,
   ): Promise<DiaryNoteDocument> {
     return await this.diaryNotesService.create({
-      encryptedTitle,
-      encryptedText,
-      tags,
+      ...createNoteInput,
       userId,
     });
   }
@@ -95,45 +85,18 @@ export class DiaryNotesResolver {
 
   @UseGuards(AuthGuard)
   @Mutation(() => DiaryNote, {
-    name: 'updateText',
-    description: 'Update note text, requires authentication.',
+    name: 'updateDiaryNote',
+    description: 'Update a note, requires authentication.',
   })
-  async updateText(
-    @Args('id') id: string,
-    @Args('encryptedText') encryptedText: string,
+  async updateDiaryNote(
+    @Args('updateNoteInput') updateNoteInput: UpdateNoteInput,
     @Context('req') { user: { sub: userId } }: IReqUserContext,
   ): Promise<DiaryNoteDocument> {
-    const updatedNote = await this.diaryNotesService.updateText(id, encryptedText, userId)
-    return updatedNote;
-  }
-
-  @UseGuards(AuthGuard)
-  @Mutation(() => DiaryNote, {
-    name: 'updateTitle',
-    description: 'Update note title, requires authentication.',
-  })
-  async updateTitle(
-    @Args('id') id: string,
-    @Args('encryptedTitle') encryptedTitle: string,
-    @Context('req') { user: { sub: userId } }: IReqUserContext,
-  ): Promise<DiaryNoteDocument> {
-    const updatedNote = await this.diaryNotesService.updateTitle(id, encryptedTitle, userId)
-    return updatedNote;
-  }
-
-  @UseGuards(AuthGuard)
-  @Mutation(() => DiaryNote, {
-    name: 'updateTags',
-    description: 'Update note tags, requires authentication.',
-  })
-  async updateTags(
-    @Args('id') id: string,
-    @Args('tags', { type: () => [String], defaultValue: [], nullable: true })
-    tags: string[],
-    @Context('req') { user: { sub: userId } }: IReqUserContext,
-  ): Promise<DiaryNoteDocument> {
-    const updatedNote = await this.diaryNotesService.updateTags(id, tags, userId)
-    return updatedNote;
+    return await this.diaryNotesService.update(
+      updateNoteInput.id,
+      userId,
+      updateNoteInput,
+    );
   }
 
   @UseGuards(AuthGuard)
@@ -145,7 +108,7 @@ export class DiaryNotesResolver {
     @Args('id') id: string,
     @Context('req') { user: { sub: userId } }: IReqUserContext,
   ): Promise<DiaryNoteDocument> {
-    const deletedNote = await this.diaryNotesService.delete(id, userId)
+    const deletedNote = await this.diaryNotesService.delete(id, userId);
     return deletedNote;
   }
 }
