@@ -4,6 +4,9 @@ import { DiaryNote, DiaryNoteDocument } from './schema/diaryNote.schema';
 import { Model } from 'mongoose';
 import { CreateNoteInput } from './dto/create-note.input';
 import { UpdateTaskInput } from '../tasks/dto/update-task.input';
+import * as crypto from 'crypto';
+
+type direction = -1 | 1;
 
 @Injectable()
 export class DiaryNotesService {
@@ -15,10 +18,12 @@ export class DiaryNotesService {
   async findUserNotesPaginated(
     page: number,
     limit: number,
+    direction: direction,
     userId: string,
   ): Promise<DiaryNoteDocument[]> {
     return await this.diaryNoteModel
       .find({ userId: userId })
+      .sort({ createdAt: direction })
       .skip((page - 1) * limit)
       .limit(limit);
   }
@@ -27,10 +32,14 @@ export class DiaryNotesService {
     return await this.diaryNoteModel.findOne({ _id: id, userId: userId });
   }
 
-  async create(dto: CreateNoteInput): Promise<DiaryNoteDocument> {
+  async create(
+    dto: CreateNoteInput,
+    userId: string,
+  ): Promise<DiaryNoteDocument> {
     const creationDateTime = new Date();
     return await this.diaryNoteModel.create({
       ...dto,
+      userId: userId,
       createdAt: creationDateTime,
       updatedAt: null,
       encryptedMedia: [],
@@ -40,7 +49,7 @@ export class DiaryNotesService {
   async update(id: string, userId: string, updateTaskInput: UpdateTaskInput) {
     const task = await this.diaryNoteModel.findOneAndUpdate(
       { _id: id, userId },
-      updateTaskInput,
+      { ...updateTaskInput, updatedAt: new Date() },
       { new: true },
     );
     return task;
@@ -58,6 +67,57 @@ export class DiaryNotesService {
     return await this.diaryNoteModel.countDocuments({
       tags: { $in: [tagId] },
       userId,
+    });
+  }
+
+  async findNotesByDates(
+    startDate: Date,
+    endDate: Date,
+    page: number,
+    limit: number,
+    direction: direction,
+    userId: string,
+  ): Promise<DiaryNoteDocument[]> {
+    return await this.diaryNoteModel
+      .find({ userId: userId, createdAt: { $gte: startDate, $lte: endDate } })
+      .sort({ createdAt: direction })
+      .skip((page - 1) * limit)
+      .limit(limit);
+  }
+
+  async findNotesByTags(
+    tags: string[],
+    page: number,
+    limit: number,
+    direction: direction,
+    userId: string,
+  ): Promise<DiaryNoteDocument[]> {
+    return await this.diaryNoteModel
+      .find({ userId: userId, tags: { $in: tags } })
+      .sort({ createdAt: direction })
+      .skip((page - 1) * limit)
+      .limit(limit);
+  }
+
+  async findNotesByTitle(
+    decryptedTitle: string,
+    key: string,
+    userId: string,
+  ): Promise<DiaryNoteDocument[]> {
+    const notes = await this.diaryNoteModel.find({ userId: userId });
+    return notes.filter((note) => {
+      const encryptedTitle = note.encryptedTitle;
+      if (!encryptedTitle) return false;
+      const dechiperTitle = crypto.createDecipheriv(
+        'aes-256-cbc',
+        key,
+        Buffer.from(note.iv, 'hex'),
+      );
+      const decrypted = Buffer.concat([
+        dechiperTitle.update(Buffer.from(encryptedTitle, 'hex')),
+        dechiperTitle.final(),
+      ]).toString('utf-8');
+      return decrypted.toLowerCase().includes(decryptedTitle.toLowerCase());
     });
   }
 }
