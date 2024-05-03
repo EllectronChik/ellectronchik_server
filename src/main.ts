@@ -16,7 +16,6 @@ async function bootstrap() {
     );
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('In development mode');
       app.enableCors({
         origin: 'http://localhost:3000',
         credentials: true,
