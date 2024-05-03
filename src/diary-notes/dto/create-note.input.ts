@@ -13,7 +13,4 @@ export class CreateNoteInput {
 
   @Field(() => String)
   iv: string;
-
-  @Field(() => String)
-  readonly userId: string;
 }
