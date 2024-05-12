@@ -209,15 +209,16 @@ export class DiaryNotesResolver {
   })
   async findNotesByTitle(
     @Args('title') title: string,
-    @Context('req') { user: { sub: userId }, headers: { cookie } }: IReqWithCookies,
+    @Context('req')
+    { user: { sub: userId }, headers: { cookie } }: IReqWithCookies,
   ): Promise<DiaryNoteDocument[]> {
     if (!userId) {
       return [];
     }
     let key: string;
-    
+
     try {
-      key = cookie.split('key=')[1]
+      key = cookie.split('key=')[1];
       if (key && key.includes(';')) {
         key = key.split(';')[0];
       }
@@ -232,5 +233,69 @@ export class DiaryNotesResolver {
       });
     }
     return await this.diaryNotesService.findNotesByTitle(title, key, userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Query(() => [DiaryNote], {
+    name: 'findNotes',
+    description: 'Find notes, requires authentication.',
+  })
+  async findNotes(
+    @Args('page', { type: () => Number, defaultValue: 1, nullable: true })
+    page: number,
+    @Args('limit', { type: () => Number, defaultValue: 10, nullable: true })
+    limit: number,
+    @Args('direction', { type: () => Number, nullable: true, defaultValue: 1 })
+    direction: direction,
+    @Args('decryptedTitle', { type: () => String, nullable: true })
+    decryptedTitle: string,
+    @Args('startDate', { type: () => Date, nullable: true })
+    startDate: Date,
+    @Args('endDate', { type: () => Date, nullable: true })
+    endDate: Date,
+    @Args('tags', { type: () => [String], nullable: true }) tags: string[],
+    @Context('req')
+    { user: { sub: userId }, headers: { cookie } }: IReqWithCookies,
+  ): Promise<DiaryNoteDocument[]> {
+    if (!userId) {
+      return [];
+    }
+
+    if (direction !== 1 && direction !== -1) {
+      direction = 1;
+    }
+
+    if (page <= 0 || !page) {
+      page = 1;
+    }
+
+    if (limit <= 0 || !limit || limit > 100) {
+      limit = 10;
+    }
+
+    let key: string;
+
+    try {
+      key = cookie.split('key=')[1];
+      if (key && key.includes(';')) {
+        key = key.split(';')[0];
+      }
+    } catch (e) {
+      throw new GraphQLError('Invalid key', {
+        extensions: { code: HttpStatus.UNAUTHORIZED },
+      });
+    }
+
+    return await this.diaryNotesService.findNotes(
+      userId,
+      page,
+      limit,
+      direction,
+      decryptedTitle,
+      key,
+      startDate,
+      endDate,
+      tags,
+    );
   }
 }
