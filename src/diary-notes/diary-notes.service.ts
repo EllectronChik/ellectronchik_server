@@ -120,4 +120,55 @@ export class DiaryNotesService {
       return decrypted.toLowerCase().includes(decryptedTitle.toLowerCase());
     });
   }
+
+  async findNotes(
+    userId: string,
+    page?: number,
+    limit?: number,
+    direction?: direction,
+    decryptedTitle?: string,
+    key?: string,
+    startDate?: Date,
+    endDate?: Date,
+    tags?: string[],
+  ): Promise<DiaryNoteDocument[]> {
+    let notes = await this.diaryNoteModel.find({ userId: userId });
+    if (decryptedTitle && key) {
+      notes = notes.filter((note) => {
+        const encryptedTitle = note.encryptedTitle;
+        if (!encryptedTitle) return false;
+        const dechiperTitle = crypto.createDecipheriv(
+          'aes-256-cbc',
+          key,
+          Buffer.from(note.iv, 'hex'),
+        );
+        const decrypted = Buffer.concat([
+          dechiperTitle.update(Buffer.from(encryptedTitle, 'hex')),
+          dechiperTitle.final(),
+        ]).toString('utf-8');
+        return decrypted.toLowerCase().includes(decryptedTitle.toLowerCase());
+      });
+    }
+
+    if (startDate && endDate) {
+      notes = notes.filter((note) => {
+        return note.createdAt >= startDate && note.createdAt <= endDate;
+      });
+    }
+
+    if (tags && tags.length > 0) {
+      notes = notes.filter((note) => {
+        return note.tags.some((tag) => tags.includes(tag._id));
+      });
+    }
+
+    return direction === 1
+      ? notes
+          .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+          .slice((page - 1) * limit, page * limit)
+      : notes
+          .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+          .reverse()
+          .slice((page - 1) * limit, page * limit);
+  }
 }
