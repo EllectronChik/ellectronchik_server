@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { DiaryNoteMedia } from 'src/diary-notes-media/schema/diary-notes-media.schema';
-import { Tag } from 'src/tags/schema/tag.schema';
+import { TagDocument } from 'src/tags/schema/tag.schema';
 
 export type DiaryNoteDocument = DiaryNote & mongoose.Document;
 
@@ -26,7 +26,7 @@ export class DiaryNote {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
     default: [],
   })
-  tags: Tag[];
+  tags: TagDocument[];
 
   @Prop({ required: true })
   iv: string;
