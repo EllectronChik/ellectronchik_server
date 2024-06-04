@@ -30,7 +30,7 @@ export class DiaryNote {
 
   @Prop({ required: true })
   iv: string;
-  
+
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'DiaryNoteMedia' }],
     default: [],
