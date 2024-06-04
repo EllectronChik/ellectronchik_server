@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { User } from 'src/users/schema/user.schema';
 
-export type TagDocument = mongoose.Document;
+export type TagDocument = mongoose.Document & Tag;
 
 @Schema()
 export class Tag {
