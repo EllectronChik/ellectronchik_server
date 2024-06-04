@@ -29,10 +29,10 @@ export class AuthService {
       ...userDto,
       password: passHash,
     });
-    const { refreshToken } = await this.RefreshService.create(user._id);
+    const { refreshToken } = await this.RefreshService.create(user.id);
     const { accessToken } = await this.generateToken(user);
 
-    return { accessToken, refreshToken, userId: user._id };
+    return { accessToken, refreshToken, userId: user.id };
   }
 
   async signIn(
@@ -43,9 +43,9 @@ export class AuthService {
     const isMatch = await bcrypt.compare(userDto.password, user.password);
 
     if (user && isMatch) {
-      const { refreshToken } = await this.RefreshService.create(user._id);
+      const { refreshToken } = await this.RefreshService.create(user.id);
       const { accessToken } = await this.generateToken(user);
-      return { accessToken, refreshToken, userId: user._id };
+      return { accessToken, refreshToken, userId: user.id };
     }
 
     throw new GraphQLError('Invalid credentials', {
