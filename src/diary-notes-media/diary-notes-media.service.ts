@@ -64,7 +64,7 @@ export class DiaryNotesMediaService {
       fs.writeFileSync(path.join(filePath, fileName), file.buffer);
       const media = await this.diaryNoteMediaModel.create({
         diaryNoteId: dto.noteId,
-        mediaPath: fileName,
+        mediaPath: path.join(folderName, fileName),
         mediaIVHex: dto.iv,
       });
 
