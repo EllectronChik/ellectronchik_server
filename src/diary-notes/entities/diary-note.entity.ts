@@ -11,8 +11,8 @@ export class DiaryNote {
   @Field()
   encryptedText: string;
 
-  @Field(() => [String], { nullable: true })
-  encryptedMedia: string[];
+  @Field(() => [DiaryNoteMedia], { nullable: true })
+  diaryNoteMedia: DiaryNoteMedia[];
 
   @Field()
   createdAt: Date;
@@ -28,4 +28,13 @@ export class DiaryNote {
 
   @Field()
   userId: string;
+}
+
+@ObjectType()
+class DiaryNoteMedia {
+  @Field()
+  mediaPath: string;
+
+  @Field()
+  mediaIVHex: string;
 }
