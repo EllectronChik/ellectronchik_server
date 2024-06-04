@@ -1,5 +1,5 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -18,6 +18,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { SubtaskModule } from './subtask/subtask.module';
 import { GoalsModule } from './goals/goals.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import * as cookieParser from 'cookie-parser';
 
 @Module({
   imports: [
@@ -38,7 +39,7 @@ import { ScheduleModule } from '@nestjs/schedule';
       autoSchemaFile: 'schema.gql',
       subscriptions: {
         'graphql-ws': true,
-      }
+      },
     }),
     JwtModule.register({
       global: true,
@@ -60,4 +61,8 @@ import { ScheduleModule } from '@nestjs/schedule';
   ],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(cookieParser()).forRoutes('/files/*');
+  }
+}
