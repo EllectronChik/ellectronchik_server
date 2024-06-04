@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { CreateNoteInput } from './dto/create-note.input';
 import { UpdateTaskInput } from '../tasks/dto/update-task.input';
 import * as crypto from 'crypto';
+import { GraphQLError } from 'graphql';
 
 type direction = -1 | 1;
 
@@ -25,11 +26,19 @@ export class DiaryNotesService {
       .find({ userId: userId })
       .sort({ createdAt: direction })
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .populate('diaryNoteMedia');
   }
 
   async findOne(id: string, userId: string): Promise<DiaryNoteDocument> {
-    return await this.diaryNoteModel.findOne({ _id: id, userId: userId });
+    const note = await this.diaryNoteModel
+      .findOne({ _id: id, userId: userId })
+      .populate('diaryNoteMedia');
+    if (note) return note;
+    else
+      throw new GraphQLError('Note not found', {
+        extensions: { code: 'BAD_USER_INPUT' },
+      });
   }
 
   async create(
@@ -42,7 +51,7 @@ export class DiaryNotesService {
       userId: userId,
       createdAt: creationDateTime,
       updatedAt: null,
-      encryptedMedia: [],
+      diaryNoteMedia: [],
     });
   }
 
@@ -158,7 +167,7 @@ export class DiaryNotesService {
 
     if (tags && tags.length > 0) {
       notes = notes.filter((note) => {
-        return note.tags.some((tag) => tags.includes(tag._id));
+        return note.tags.some((tag) => tags.includes(tag.id));
       });
     }
 
