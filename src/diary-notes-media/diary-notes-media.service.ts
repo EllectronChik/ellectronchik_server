@@ -69,7 +69,7 @@ export class DiaryNotesMediaService {
       });
 
       const note = await this.diaryNoteModel.findById(dto.noteId);
-      note.diaryNoteMedia.push(media._id);
+      note.diaryNoteMedia.push(media.id);
       await note.save();
       return media;
     } catch (e) {
