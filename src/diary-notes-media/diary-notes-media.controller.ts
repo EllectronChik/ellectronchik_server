@@ -27,7 +27,7 @@ export class DiaryNotesMediaController {
     @Body() dto: createDiaryNoteMediaInput,
   ) {
     if (!file || !dto.iv || !dto.noteId) {
-      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST); 
+      throw new HttpException('Bad request', HttpStatus.BAD_REQUEST);
     }
     return await this.diaryNotesMediaService.createFile(file, dto);
   }
