@@ -13,9 +13,8 @@ export class HttpAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     let token: string;
-
     try {
-      token = req.headers.cookie.split('x-access-token=')[1].split(';')[0];
+      token = req.cookies['x-access-token'];
     } catch (e) {
       throw new UnauthorizedException('Invalid token');
     }
