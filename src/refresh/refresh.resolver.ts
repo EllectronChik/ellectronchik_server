@@ -22,8 +22,7 @@ export class RefreshResolver {
     let userId: string;
     let oldrefreshToken: string;
     try {
-      oldrefreshTokenCookie = req.headers.cookie
-        .split('refresh-token=')[1]
+      oldrefreshTokenCookie = req.headers.cookie.split('refresh-token=')[1];
       if (oldrefreshTokenCookie && oldrefreshTokenCookie.includes(';')) {
         oldrefreshTokenCookie = oldrefreshTokenCookie.split(';')[0];
       }
