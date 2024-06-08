@@ -19,6 +19,8 @@ import { SubtaskModule } from './subtask/subtask.module';
 import { GoalsModule } from './goals/goals.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import * as cookieParser from 'cookie-parser';
+import { ImageProcessingMiddleware } from './middlewares/ImageProcessing.middleware';
+import { DrawitModule } from './drawit/drawit.module';
 
 @Module({
   imports: [
@@ -58,11 +60,13 @@ import * as cookieParser from 'cookie-parser';
     TasksModule,
     SubtaskModule,
     GoalsModule,
+    DrawitModule,
   ],
   providers: [],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(cookieParser()).forRoutes('/files/*');
+    consumer.apply(cookieParser()).forRoutes('*');
+    consumer.apply(ImageProcessingMiddleware).forRoutes('/static/*');
   }
 }
