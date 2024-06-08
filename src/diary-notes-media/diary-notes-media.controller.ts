@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -34,7 +35,20 @@ export class DiaryNotesMediaController {
 
   @UseGuards(HttpAuthGuard)
   @Delete(':id')
-  async deleteFile(@Param('id') id: string) {
-    return await this.diaryNotesMediaService.deleteFile(id);
+  async deleteFile(
+    @Param('id') id: string,
+    @Req() req: { user: { sub: string } },
+  ) {
+    return await this.diaryNotesMediaService.deleteFile(id, req.user.sub);
+  }
+
+  @UseGuards(HttpAuthGuard)
+  @Delete('all/:noteId')
+  async deleteAllByNote(
+    @Param('noteId') noteId: string,
+    @Req() req: { user: { sub: string } },
+  ) {
+    await this.diaryNotesMediaService.deleteAllByNote(noteId, req.user.sub);
+    throw new HttpException('Deleted', HttpStatus.NO_CONTENT);
   }
 }
