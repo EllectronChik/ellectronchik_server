@@ -80,7 +80,59 @@ export class DiaryNotesMediaService {
     }
   }
 
-  async deleteFile(id: string) {
+  async deleteAllByNote(noteId: string, userId: string) {
+    const note = await this.diaryNoteModel.findById(noteId);
+    if (note.userId !== userId) {
+      console.log(note.userId, userId);
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    if (!note) {
+      throw new HttpException('Note not found', HttpStatus.NOT_FOUND);
+    }
+    for (const media of note.diaryNoteMedia) {
+      const mediaDoc = await this.diaryNoteMediaModel.findById(media);
+      try {
+        const filePath = path.resolve(
+          __dirname,
+          '..',
+          '..',
+          'static',
+          mediaDoc.mediaPath,
+        );
+        fs.unlinkSync(filePath);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    await note.updateOne({ diaryNoteMedia: [] });
+    return await this.diaryNoteMediaModel.deleteMany({ diaryNoteId: noteId });
+  }
+
+  async deleteFile(id: string, userId: string) {
+    const media = await this.diaryNoteMediaModel.findById(id);
+    if (!media) {
+      throw new HttpException('Media not found', HttpStatus.NOT_FOUND);
+    }
+    const note = await this.diaryNoteModel.findById(media.diaryNoteId);
+    if (note.userId !== userId) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+    try {
+      const filePath = path.resolve(
+        __dirname,
+        '..',
+        '..',
+        'static',
+        media.mediaPath,
+      );
+      fs.unlinkSync(filePath);
+    } catch (e) {
+      console.log(e);
+    }
+    await this.diaryNoteModel.updateOne(
+      { _id: media.diaryNoteId },
+      { $pull: { diaryNoteMedia: id } },
+    );
     return await this.diaryNoteMediaModel.findByIdAndDelete(id);
   }
 }
