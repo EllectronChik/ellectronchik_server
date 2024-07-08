@@ -5,6 +5,9 @@ export class KingPlayerInput {
   @Field(() => String)
   id: string;
 
+  @Field(() => Int)
+  avatarId: number;
+
   @Field(() => String)
   name: string;
 }
@@ -25,14 +28,25 @@ export class CustomWordlistInput {
 export class StartGameInput {
   @Field(() => Int)
   playersCount: number;
+
   @Field(() => Int)
   pointsToWin: number;
+
+  @Field(() => Int)
+  oneGuessPoints: number;
+
   @Field(() => Int)
   timeLimit: number;
+
   @Field()
   KingPlayer: KingPlayerInput;
+
   @Field(() => [String], { nullable: true })
   customWordlist: CustomWordlistInput | null;
+
   @Field(() => String, { nullable: true })
   wordlistId: string | null;
+
+  @Field(() => Boolean)
+  isPrivate: boolean;
 }
