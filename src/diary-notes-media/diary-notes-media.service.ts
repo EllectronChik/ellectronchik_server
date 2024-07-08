@@ -83,7 +83,6 @@ export class DiaryNotesMediaService {
   async deleteAllByNote(noteId: string, userId: string) {
     const note = await this.diaryNoteModel.findById(noteId);
     if (note.userId !== userId) {
-      console.log(note.userId, userId);
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
     if (!note) {
@@ -101,7 +100,7 @@ export class DiaryNotesMediaService {
         );
         fs.unlinkSync(filePath);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     }
     await note.updateOne({ diaryNoteMedia: [] });
@@ -127,7 +126,7 @@ export class DiaryNotesMediaService {
       );
       fs.unlinkSync(filePath);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
     await this.diaryNoteModel.updateOne(
       { _id: media.diaryNoteId },
