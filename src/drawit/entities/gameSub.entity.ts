@@ -14,6 +14,9 @@ export class GameSub {
   @Field(() => Number, { description: 'Players count' })
   playersCount: number;
 
+  @Field(() => Number, { description: 'Max players' })
+  maxPlayersCount: number;
+
   @Field(() => Number, { description: 'Points to win' })
   pointsToWin: number;
 }
