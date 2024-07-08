@@ -6,8 +6,12 @@ import { Model } from 'mongoose';
 import { DrawIt, DrawItDocument } from './schema/drawit.schema';
 import { v4 as uuidv4 } from 'uuid';
 import { GraphQLError } from 'graphql';
-import { StartGameInput, KingPlayerInput } from './dto/start-game.input';
+import { StartGameInput } from './dto/start-game.input';
 import { SubscriptionService } from './subscription.service';
+import { Game } from './game';
+import { GameSub } from './entities/gameSub.entity';
+import { JoinGameInput } from './dto/join-game.input';
+import { AddChatMessageInput } from './dto/add-chat-message.input';
 
 const runningGames = new Map<string, Game>();
 
@@ -41,10 +45,12 @@ export class DrawitService {
   async startGame({
     playersCount,
     pointsToWin,
+    oneGuessPoints,
     timeLimit,
     KingPlayer,
     customWordlist,
     wordlistId,
+    isPrivate,
   }: StartGameInput) {
     let wordlist: string[] = [];
     let language: string;
@@ -83,25 +89,31 @@ export class DrawitService {
       gameId,
       playersCount,
       pointsToWin,
+      oneGuessPoints,
       timeLimit,
+      runningGames,
       this.subscriptionService,
+      isPrivate,
     );
-    game.setWordlist = wordlist;
-    game.setGameLanguage = language;
-    game.setGamePackage = pack;
+    game.wordlist = wordlist;
+    game.gameLanguage = language;
+    game.gamePackage = pack;
     const playerId = game.addPlayer(KingPlayer, true);
     runningGames.set(gameId, game);
 
-    const toPublish: any = [];
+    const toPublish: GameSub[] = [];
 
     runningGames.forEach((game, key) => {
-      toPublish.push({
-        id: key,
-        language: game.getGameLanguage,
-        package: game.getGamePackage,
-        playersCount: game.getPlayersCount,
-        pointsToWin: game.getPointsToWin,
-      });
+      if (!game.isPrivate) {
+        toPublish.push({
+          id: key,
+          language: game.gameLanguage,
+          package: game.gamePackage,
+          playersCount: game.playersCount,
+          maxPlayersCount: game.maxPlayersCount,
+          pointsToWin: game.pointsToWin,
+        });
+      }
     });
     this.subscriptionService.getPubSub.publish('getGames', {
       getGames: toPublish,
@@ -113,16 +125,59 @@ export class DrawitService {
     };
   }
 
-  getGames() {
-    const games = [];
-    runningGames.forEach((game, key) => {
-      games.push({
-        id: key,
-        language: game.getGameLanguage,
-        package: game.getGamePackage,
-        playersCount: game.getPlayersCount,
-        pointsToWin: game.getPointsToWin,
+  joinGame({ gameId, playerId, playerAvatar, playerName }: JoinGameInput) {
+    const game = runningGames.get(gameId);
+
+    if (!game) {
+      throw new GraphQLError('Game not found', {
+        extensions: { code: 'BAD_USER_INPUT' },
       });
+    }
+    if (game.playersCount >= game.maxPlayersCount) {
+      throw new GraphQLError('Game is full', {
+        extensions: { code: 'BAD_USER_INPUT' },
+      });
+    }
+    if (!game.playerIds.includes(playerId)) {
+      game.addPlayer(
+        { id: playerId, name: playerName, avatarId: playerAvatar },
+        false,
+      );
+    } else {
+      game.changePlayerData({
+        id: playerId,
+        name: playerName,
+        avatarId: playerAvatar,
+      });
+    }
+
+    return {
+      players: game.players,
+      chat: game.chat,
+      guesses: game.guesses,
+      currentCanvasState: game.currentCanvasState,
+      maxPlayersCount: game.maxPlayersCount,
+      pointsToWin: game.pointsToWin,
+    };
+  }
+
+  isGameExist(gameId: string) {
+    return runningGames.has(gameId);
+  }
+
+  getGames() {
+    const games: GameSub[] = [];
+    runningGames.forEach((game, key) => {
+      if (!game.isPrivate) {
+        games.push({
+          id: key,
+          language: game.gameLanguage,
+          package: game.gamePackage,
+          playersCount: game.playersCount,
+          maxPlayersCount: game.maxPlayersCount,
+          pointsToWin: game.pointsToWin,
+        });
+      }
     });
 
     this.subscriptionService.getPubSub.publish('getGames', {
@@ -130,173 +185,21 @@ export class DrawitService {
     });
     return games;
   }
-}
 
-class Game {
-  private id: string;
-  private playersCount: number;
-  private pointsToWin: number;
-  private timeLimit: number;
-  private chat: string[] = [];
-  private guesses: string[] = [];
-  private answer: string;
-  private gameLanguage: string;
-  private gamePackage: string;
-  private wordlist: string[] = [];
-  private currentCanvasState: string;
-  private inactivityTimer: NodeJS.Timeout;
-  private subscriptionService: SubscriptionService;
-  private players: {
-    [key: string]: {
-      name: string;
-      score: number;
-      wins: number;
-      isGuessed: boolean;
-      isDrawing: boolean;
-      isKing: boolean;
-    };
-  };
-
-  constructor(
-    id: string,
-    playersCount: number,
-    pointsToWin: number,
-    timeLimit: number,
-    subscriptionService: SubscriptionService,
-  ) {
-    this.id = id;
-    this.playersCount = playersCount;
-    this.pointsToWin = pointsToWin;
-    this.timeLimit = timeLimit;
-    this.players = {};
-    this.updateInactivityTimer();
-    this.subscriptionService = subscriptionService;
-  }
-
-  get getId() {
-    return this.id;
-  }
-
-  get getChat() {
-    return this.chat;
-  }
-
-  get getGuesses() {
-    return this.guesses;
-  }
-
-  get getGameLanguage() {
-    return this.gameLanguage;
-  }
-
-  get getGamePackage() {
-    return this.gamePackage;
-  }
-
-  get getPlayersCount() {
-    return this.playersCount;
-  }
-
-  get getPointsToWin() {
-    return this.pointsToWin;
-  }
-
-  set addChatMessage(message: string) {
-    this.updateInactivityTimer();
-    this.chat.push(message);
-  }
-
-  set setGameLanguage(language: string) {
-    this.gameLanguage = language;
-  }
-
-  set setGamePackage(packageName: string) {
-    this.gamePackage = packageName;
-  }
-
-  set setWordlist(wordlist: string[]) {
-    this.wordlist = wordlist;
-  }
-
-  set setAnswer(answer: string) {
-    this.answer = answer;
-  }
-
-  addGuess(guess: string, playerId: string) {
-    if (this.players[playerId].isDrawing) {
-      throw new GraphQLError('Cannot guess while drawing', {
+  addChatMessage({ gameId, message, playerId }: AddChatMessageInput) {
+    const game = runningGames.get(gameId);
+    if (!game) {
+      throw new GraphQLError('Game not found', {
         extensions: { code: 'BAD_USER_INPUT' },
       });
     }
-    if (this.players[playerId].isGuessed) {
-      throw new GraphQLError('Cannot guess twice', {
+    try {
+      game.addChatMessage(message, playerId);
+      return true;
+    } catch (e) {
+      throw new GraphQLError(e.message, {
         extensions: { code: 'BAD_USER_INPUT' },
       });
-    }
-    if (this.answer === guess) {
-      this.players[playerId].isGuessed = true;
-    }
-    this.guesses.push(guess);
-    return this.guesses;
-  }
-
-  addPlayer({ id, name }: KingPlayerInput, isKing: boolean) {
-    if (id in this.players) {
-      throw new GraphQLError('Player already exists', {
-        extensions: { code: 'BAD_USER_INPUT' },
-      });
-    }
-    this.players[id] = {
-      name,
-      score: 0,
-      wins: 0,
-      isGuessed: false,
-      isDrawing: false,
-      isKing,
-    };
-    return id;
-  }
-
-  endGame() {
-    console.log('-'.repeat(20) + 'Before endGame' + '-'.repeat(20));
-
-    runningGames.forEach((game, key) => {
-      console.log(`${key}: ${game.getId}`);
-      console.log('\n\n');
-    });
-
-    clearTimeout(this.inactivityTimer);
-    runningGames.delete(this.id);
-    const toPublish = [];
-
-    runningGames.forEach((game, key) => {
-      toPublish.push({
-        id: key,
-        language: game.getGameLanguage,
-        package: game.getGamePackage,
-        playersCount: game.getPlayersCount,
-        pointsToWin: game.getPointsToWin,
-      });
-    });
-
-    this.subscriptionService.getPubSub.publish('getGames', {
-      getGames: toPublish,
-    });
-  }
-
-  updateInactivityTimer() {
-    if (this.inactivityTimer) {
-      clearTimeout(this.inactivityTimer);
-    }
-    this.inactivityTimer = setTimeout(() => {
-      this.endGame();
-    }, this.timeLimit * 1000);
-  }
-
-  removePlayer(playerId: string) {
-    delete this.players[playerId];
-    if (Object.keys(this.players).length === 0) {
-      this.endGame();
     }
   }
 }
